@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "HTTP://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="freeMapper">
+
+   <insert id="freeinsertBoard" parameterType="freeVO">
+      INSERT INTO
+         FBOARD (FIDX, FDATE, USERID, FTITLE, FCONTENT)
+      VALUES
+         (FIDX.NEXTVAL, SYSDATE, #{userId}, #{fTitle}, #{fContent})
+   </insert>
+   
+   <select id="freelistBoard" resultType="freeVO">
+   SELECT 
+      FIDX,
+      FTITLE,
+      USERID,
+      FCONTENT,
+      TO_CHAR (FDATE, 'YYYY-MM-DD AM HH:MM') FDATE,
+      FCOUNT
+   FROM
+      FBOARD
+   WHERE 
+      FIDX &gt; 0 AND FAVAILABLE = 1
+      ORDER BY FIDX DESC
+   
+   </select>
+   
+   <select id="freereadBoard" resultType="freeVO" parameterType = "int">
+      SELECT
+         FIDX,
+         FTITLE,
+         USERID,
+         FCONTENT,
+         TO_CHAR (FDATE, 'YYYY-MM-DD AM HH:MM') FDATE,
+         FCOUNT
+      FROM
+         FBOARD
+      WHERE
+         FIDX = #{fIDX}   
+   </select>
+   <update id="freeupdateBoard" parameterType="freeVO">
+      UPDATE
+         FBOARD 
+      SET
+         FTITLE = #{fTitle} , FCONTENT= #{fContent}       
+      WHERE
+         FIDX = #{fIDX}
+   </update>
+      <update id="freehitBoard" parameterType="int">
+      UPDATE
+         FBOARD 
+      SET
+         FCOUNT = fCount + 1
+      WHERE
+         FIDX = #{fIDX}
+   </update>
+   
+      <update id="freedeleteBoard" parameterType="int">
+      UPDATE
+         FBOARD 
+      SET
+         FAVAILABLE = 0
+      WHERE
+         FIDX = #{fIDX}
+   </update>
+   
+   
+      <select id="freeCountAllBoard" parameterType="freeVO" resultType="Integer">
+      select
+         count(*)
+        from
+           FBOARD
+       where
+          FIDX &gt; 0 and fAvailable = 1
+          <include refid="searchOption"></include>
+   </select>
+   <!-- 검색어 -->
+   <sql id="searchOption">
+      <if test="searchOption == 'all'.toString()">
+         AND (boardTitle LIKE CONCAT('%', #{keyword}, '%')
+               OR boardContent LIKE CONCAT('%', #{keyword}, '%')
+               OR userID LIKE CONCAT('%', #{keyword}, '%'))
+      </if>
+      <if test="searchOption == 'title'.toString()">
+         AND boardTitle LIKE CONCAT('%', #{keyword}, '%')
+      </if>
+      <if test="searchOption == 'content'.toString()">
+         AND boardContent LIKE CONCAT('%', #{keyword}, '%')
+      </if>
+      <if test="searchOption == 'user'.toString()">
+         AND userID LIKE CONCAT('%', #{keyword}, '%')
+      </if>
+   </sql>
+</mapper>

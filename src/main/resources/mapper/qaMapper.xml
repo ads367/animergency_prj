@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "HTTP://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="qaMapper">
+
+   <insert id="qainsertBoard" parameterType="qaVO">
+      INSERT INTO
+         QBOARD (QIDX, QDATE, USERID, QTITLE, QCONTENT)
+      VALUES
+         (QIDX.NEXTVAL, SYSDATE, #{userId}, #{qTitle}, #{qContent})
+   </insert>
+   
+   <select id="qalistBoard" resultType="qaVO">
+   SELECT 
+      QIDX,
+      QTITLE,
+      USERID,
+      QCONTENT,
+      TO_CHAR (QDATE, 'YYYY-MM-DD AM HH:MM') QDATE,
+      QCOUNT
+   FROM
+      QBOARD
+   WHERE 
+      QIDX &gt; 0 AND QAVAILABLE = 1
+      ORDER BY QIDX DESC
+   
+   </select>
+   
+   <select id="qareadBoard" resultType="qaVO" parameterType = "int">
+      SELECT
+         QIDX,
+         QTITLE,
+         USERID,
+         QCONTENT,
+         TO_CHAR (QDATE, 'YYYY-MM-DD AM HH:MM') QDATE,
+         QCOUNT
+      FROM
+         QBOARD
+      WHERE
+         QIDX = #{qIDX}   
+   </select>
+   <update id="qaupdateBoard" parameterType="qaVO">
+      UPDATE
+         QBOARD 
+      SET
+         QTITLE = #{qTitle} , QCONTENT= #{qContent}       
+      WHERE
+         QIDX = #{qIDX}
+   </update>
+      <update id="qahitBoard" parameterType="int">
+      UPDATE
+         QBOARD 
+      SET
+         QCOUNT = qCount + 1
+      WHERE
+         QIDX = #{qIDX}
+   </update>
+   
+      <update id="qadeleteBoard" parameterType="int">
+      UPDATE
+         QBOARD 
+      SET
+         QAVAILABLE = 0
+      WHERE
+         QIDX = #{qIDX}
+   </update>
+   
+   
+      <select id="qaCountAllBoard" parameterType="qaVO" resultType="Integer">
+      select
+         count(*)
+        from
+           QBOARD
+       where
+          QIDX &gt; 0 and qAvailable = 1
+          <include refid="searchOption"></include>
+   </select>
+   <!-- 검색어 -->
+   <sql id="searchOption">
+      <if test="searchOption == 'all'.toString()">
+         AND (boardTitle LIKE CONCAT('%', #{keyword}, '%')
+               OR boardContent LIKE CONCAT('%', #{keyword}, '%')
+               OR userID LIKE CONCAT('%', #{keyword}, '%'))
+      </if>
+      <if test="searchOption == 'title'.toString()">
+         AND boardTitle LIKE CONCAT('%', #{keyword}, '%')
+      </if>
+      <if test="searchOption == 'content'.toString()">
+         AND boardContent LIKE CONCAT('%', #{keyword}, '%')
+      </if>
+      <if test="searchOption == 'user'.toString()">
+         AND userID LIKE CONCAT('%', #{keyword}, '%')
+      </if>
+   </sql>
+</mapper>

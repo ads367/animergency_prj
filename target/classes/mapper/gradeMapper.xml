@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "HTTP://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--  classs boardMapper -->
+
+<mapper namespace="grade">
+
+	<!-- 등급 신청 -->
+	<insert id="gradeUpApply" parameterType="gradeVO">
+		INSERT INTO
+			GRADEUP (GRADEIDX, USERID, USERNAME, USERGRADE, APPLYCONTENT, GRADEDATE)
+		VALUES
+			(GRADEIDX.NEXTVAL, #{userId}, #{userName}, #{userGrade}, #{applyContent}, SYSDATE)
+	</insert>
+	
+	<!-- 등급 리스트 출력 -->
+	<select id="gradeList" resultType="gradeVO">
+		SELECT
+			GRADEIDX, USERID, USERNAME, USERGRADE, APPLYCONTENT, TO_CHAR (GRADEDATE, 'YYYY-MM-DD AM HH:MM') GRADEDATE
+		  FROM
+		  	GRADEUP
+		 WHERE
+		 	GRADEIDX &gt; 0
+	</select>
+
+	<delete id="gradeDelete" parameterType="gradeVO">
+		DELETE FROM
+			GRADEUP
+		 WHERE
+		 	USERID = #{userId}
+	</delete>	
+</mapper>
+
